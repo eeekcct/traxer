@@ -1,9 +1,18 @@
 [package]
 name = "traxer"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2024"
+rust-version = "1.90"
 description = "Opinionated tracing preset for CLI tools"
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/eeekcct/traxer"
+keywords = ["tracing"]
+categories = ["development-tools::debugging"]
+publish = false
+
+[package.metadata.docs.rs]
+all-features = true
 
 [dependencies]
 tracing = "0.1"
