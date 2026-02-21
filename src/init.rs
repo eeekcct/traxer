@@ -164,6 +164,37 @@ fn resolve_color(cfg: &Config) -> bool {
     }
 }
 
+fn build_base_fields(cfg: &Config) -> Vec<(String, Value)> {
+    let mut fields = BTreeMap::new();
+
+    if cfg.include_pid {
+        fields.insert("pid".to_string(), Value::Number(std::process::id().into()));
+    }
+
+    if cfg.include_exe
+        && let Ok(exe_path) = std::env::current_exe()
+        && let Some(name) = exe_path.file_name()
+    {
+        fields.insert(
+            "exe".to_string(),
+            Value::String(name.to_string_lossy().into_owned()),
+        );
+    }
+
+    if cfg.include_version {
+        fields.insert(
+            "version".to_string(),
+            Value::String(env!("CARGO_PKG_VERSION").to_string()),
+        );
+    }
+
+    for (key, value) in &cfg.base_fields {
+        fields.insert(key.to_string(), value.clone());
+    }
+
+    fields.into_iter().collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -230,36 +261,4 @@ mod tests {
         assert!(cfg.span);
         assert!(!cfg.error_report);
     }
-}
-
-fn build_base_fields(cfg: &Config) -> Vec<(String, Value)> {
-    let mut fields = BTreeMap::new();
-
-    if cfg.include_pid {
-        fields.insert("pid".to_string(), Value::Number(std::process::id().into()));
-    }
-
-    if cfg.include_exe {
-        if let Ok(exe_path) = std::env::current_exe() {
-            if let Some(name) = exe_path.file_name() {
-                fields.insert(
-                    "exe".to_string(),
-                    Value::String(name.to_string_lossy().into_owned()),
-                );
-            }
-        }
-    }
-
-    if cfg.include_version {
-        fields.insert(
-            "version".to_string(),
-            Value::String(env!("CARGO_PKG_VERSION").to_string()),
-        );
-    }
-
-    for (key, value) in &cfg.base_fields {
-        fields.insert(key.to_string(), value.clone());
-    }
-
-    fields.into_iter().collect()
 }
