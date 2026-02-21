@@ -1,0 +1,12 @@
+[package]
+name = "traxer"
+version = "0.1.0"
+edition = "2024"
+description = "Opinionated tracing preset for CLI tools"
+license = "MIT"
+
+[dependencies]
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+color-eyre = "0.6"
+serde_json = "1.0.149"
