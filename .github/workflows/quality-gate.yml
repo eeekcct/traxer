@@ -1,0 +1,58 @@
+name: Quality Gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  quality:
+    name: Quality (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo artifacts
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+
+      - name: rustfmt
+        run: cargo fmt --all -- --check
+
+      - name: clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: test (all targets)
+        run: cargo test --workspace --all-targets
+
+      - name: test (doc)
+        run: cargo test --doc
+
+      - name: smoke (fields json)
+        run: cargo run --example fields -- --json
+
+      - name: smoke (try_init)
+        run: cargo run --example try_init
+
+      - name: install cargo-audit
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo install cargo-audit --locked
+
+      - name: audit
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo audit --deny warnings

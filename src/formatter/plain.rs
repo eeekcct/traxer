@@ -33,10 +33,10 @@ where
             write!(writer, " {key}={value}")?;
         }
 
-        if self.span {
-            if let Some(span) = ctx.lookup_current() {
-                write!(writer, " span={}", span.name())?;
-            }
+        if self.span
+            && let Some(span) = ctx.lookup_current()
+        {
+            write!(writer, " span={}", span.name())?;
         }
 
         writeln!(writer)

@@ -95,10 +95,10 @@ where
             map.insert(key.clone(), value.clone());
         }
 
-        if self.span {
-            if let Some(span) = ctx.lookup_current() {
-                map.insert("span".to_string(), Value::String(span.name().to_string()));
-            }
+        if self.span
+            && let Some(span) = ctx.lookup_current()
+        {
+            map.insert("span".to_string(), Value::String(span.name().to_string()));
         }
 
         map.entry("message".to_string())
